@@ -15,7 +15,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
         /// <summary>
         /// Finds all missing references to objects in the currently loaded scene.
         /// </summary>
-        static void FindMissingReferencesInCurrentScene()
+        private static void FindMissingReferencesInCurrentScene()
         {
             var sceneObjects = GetSceneObjects();
             FindMissingReferences(EditorSceneManager.GetActiveScene().path, sceneObjects);
@@ -60,6 +60,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
             foreach (var assetPath in filteredAssetPaths)
             {
                 var obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+
                 if (obj != null)
                 {
                     gameObjects.Add(obj);
@@ -69,7 +70,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
             FindMissingReferences("Project", gameObjects.ToArray());
         }
 
-        static void FindMissingReferences(string context, GameObject[] gameObjects)
+        private static void FindMissingReferences(string context, GameObject[] gameObjects)
         {
             if (gameObjects == null)
             {
@@ -79,6 +80,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
             foreach (var gameObject in gameObjects)
             {
                 Component[] components = gameObject.GetComponents<Component>();
+
                 foreach (var component in components)
                 {
                     // Missing components will be null, we can't find their type, etc.
@@ -106,7 +108,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
                         }
 
                         if (property.objectReferenceValue == null
-                        && (property.objectReferenceInstanceIDValue != 0 || objectReferenceStringValue.StartsWith("Missing")))
+                            && (property.objectReferenceInstanceIDValue != 0 || objectReferenceStringValue.StartsWith("Missing")))
                         {
                             ShowError(context, gameObject, component.GetType().Name, ObjectNames.NicifyVariableName(property.name));
                         }
@@ -115,7 +117,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
             }
         }
 
-        static GameObject[] GetSceneObjects()
+        private static GameObject[] GetSceneObjects()
         {
             // Use this method since GameObject.FindObjectsOfType will not return disabled objects.
             GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
@@ -133,16 +135,15 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Tests.Editor
             return matchingGameObjects.ToArray();
         }
 
-        static void ShowError(string context, GameObject go, string componentName, string propertyName)
+        private static void ShowError(string context, GameObject go, string componentName, string propertyName)
         {
             var ERROR_TEMPLATE = "Missing Ref in: [{3}]{0}. Component: {1}, Property: {2}";
             Debug.LogError(string.Format(ERROR_TEMPLATE, GetFullPath(go), componentName, propertyName, context), go);
         }
 
-        static string GetFullPath(GameObject go)
+        private static string GetFullPath(GameObject go)
         {
-            return go.transform.parent == null ? go.name
-                                               : Path.Combine(GetFullPath(go.transform.parent.gameObject), go.name);
+            return go.transform.parent == null ? go.name : Path.Combine(GetFullPath(go.transform.parent.gameObject), go.name);
         }
     }
 }

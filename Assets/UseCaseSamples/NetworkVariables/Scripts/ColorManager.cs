@@ -11,14 +11,16 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
         /// <summary>
         /// The NetworkVariable holding the color
         /// </summary>
-        NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
-        Material m_Material;
+        private NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
+
+        private Material m_Material;
 
         [SerializeField, Tooltip("The seconds that will elapse between color changes")]
-        float m_SecondsBetweenColorChanges;
-        float m_ElapsedSecondsSinceLastChange;
+        private float m_SecondsBetweenColorChanges;
 
-        void Awake()
+        private float m_ElapsedSecondsSinceLastChange;
+
+        private void Awake()
         {
             m_Material = GetComponent<Renderer>().material;
         }
@@ -29,7 +31,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
             if (IsClient)
             {
                 /*
-                 * We call the color change method manually when we connect to ensure that our color is correctly initialized. 
+                 * We call the color change method manually when we connect to ensure that our color is correctly initialized.
                  * This is helpful for when a client joins mid-game and needs to catch up with the current state of the game.
                  */
                 OnClientColorChanged(m_Material.color, m_NetworkedColor.Value);
@@ -40,23 +42,25 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
+
             if (IsClient)
             {
                 m_NetworkedColor.OnValueChanged -= OnClientColorChanged;
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!IsSpawned)
             {
                 //the player disconnected
                 return;
             }
+
             if (!IsServer)
             {
                 /*
-                 * By default, only the server is allowed to change the value of NetworkVariables. 
+                 * By default, only the server is allowed to change the value of NetworkVariables.
                  * This can be changed through the NetworkVariable's constructor.
                  */
                 return;
@@ -71,12 +75,12 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
             }
         }
 
-        void OnServerChangeColor()
+        private void OnServerChangeColor()
         {
             m_NetworkedColor.Value = MultiplayerUseCasesUtilities.GetRandomColor();
         }
 
-        void OnClientColorChanged(Color32 previousColor, Color32 newColor)
+        private void OnClientColorChanged(Color32 previousColor, Color32 newColor)
         {
             m_Material.color = newColor;
         }

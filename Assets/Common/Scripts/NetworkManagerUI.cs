@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport;
 using UnityEngine;
@@ -8,29 +7,35 @@ using Button = UnityEngine.UIElements.Button;
 
 namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
 {
+
+    /// <summary>
+    /// A UI for the NetworkManager
+    /// </summary>
+
     [RequireComponent(typeof(UIDocument))]
     public class NetworkManagerUI : MonoBehaviour
     {
-        const string k_DefaultIP = "127.0.0.1";
-        const string k_DefaultServerListenAddress = "0.0.0.0"; //note: this is not safe for real world usage and would limit you to IPv4-only addresses, but this goes out the scope of this sample.
-        const ushort k_DefaultPort = 7979;
+        private const string k_DefaultIP = "127.0.0.1";
+        private const string k_DefaultServerListenAddress = "0.0.0.0"; //note: this is not safe for real world usage and would limit you to IPv4-only addresses, but this goes out the scope of this sample.
+        private const ushort k_DefaultPort = 7979;
 
-        VisualElement m_Root;
-        TextField m_AddressInputField;
-        TextField m_PortInputField;
-        Button m_ServerButton;
-        Button m_HostButton;
-        Button m_ClientButton;
-        Button m_DisconnectButton;
-        Button m_QuitSceneButton;
-        Button[] m_Buttons;
+        private VisualElement m_Root;
+        private TextField m_AddressInputField;
+        private TextField m_PortInputField;
+        private Button m_ServerButton;
+        private Button m_HostButton;
+        private Button m_ClientButton;
+        private Button m_DisconnectButton;
+        private Button m_QuitSceneButton;
+        private Button[] m_Buttons;
 
         [SerializeField]
-        string m_SelectionScreenSceneName;
-        [SerializeField]
-        GameObject m_ServerOnlyOverlay;
+        private string m_SelectionScreenSceneName;
 
-        void Awake()
+        [SerializeField]
+        private GameObject m_ServerOnlyOverlay;
+
+        private void Awake()
         {
             var uiDocument = GetComponent<UIDocument>();
             m_Root = uiDocument.rootVisualElement;
@@ -44,12 +49,12 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             m_Buttons = new Button[] { m_ServerButton, m_HostButton, m_ClientButton };
         }
 
-        void Start()
+        private void Start()
         {
             m_ServerOnlyOverlay.gameObject.SetActive(false);
         }
 
-        void StartServer()
+        private void StartServer()
         {
             SetNetworkPortAndAddress(ushort.Parse(m_PortInputField.value), m_AddressInputField.value, k_DefaultServerListenAddress);
             NetworkManager.Singleton.StartServer();
@@ -58,7 +63,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             m_ServerOnlyOverlay.gameObject.SetActive(true);
         }
 
-        void StartHost()
+        private void StartHost()
         {
             SetNetworkPortAndAddress(ushort.Parse(m_PortInputField.value), m_AddressInputField.value, k_DefaultServerListenAddress);
             NetworkManager.Singleton.StartHost();
@@ -66,7 +71,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             SetButtonStateAndColor(m_DisconnectButton, false, true);
         }
 
-        void StartClient()
+        private void StartClient()
         {
             SetNetworkPortAndAddress(ushort.Parse(m_PortInputField.value), m_AddressInputField.value, k_DefaultServerListenAddress);
             NetworkManager.Singleton.StartClient();
@@ -74,7 +79,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             SetButtonStateAndColor(m_DisconnectButton, false, true);
         }
 
-        void Disconnect()
+        private void Disconnect()
         {
             NetworkManager.Singleton.Shutdown();
             EnableAndHighlightButtons(null, true);
@@ -82,16 +87,17 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             m_ServerOnlyOverlay.gameObject.SetActive(false);
         }
 
-        void QuitScene()
+        private void QuitScene()
         {
             Disconnect();
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.LoadScene(m_SelectionScreenSceneName, LoadSceneMode.Single);
         }
 
-        void OnSceneLoaded(Scene loadedScene, LoadSceneMode arg1)
+        private void OnSceneLoaded(Scene loadedScene, LoadSceneMode arg1)
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+
             if (loadedScene.name == m_SelectionScreenSceneName)
             {
                 if (NetworkManager.Singleton)
@@ -101,7 +107,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             }
         }
 
-        void OnAddressChanged(ChangeEvent<string> evt)
+        private void OnAddressChanged(ChangeEvent<string> evt)
         {
             string newAddress = evt.newValue;
             ushort currentPort = ushort.Parse(m_PortInputField.value);
@@ -110,27 +116,30 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             {
                 Debug.LogError($"IP address '{newAddress}', is not valid. Reverting IP address to {k_DefaultIP}");
                 m_AddressInputField.value = k_DefaultIP;
+
                 return;
             }
 
             SetNetworkPortAndAddress(currentPort, newAddress, k_DefaultServerListenAddress);
         }
 
-        void OnPortChanged(ChangeEvent<string> evt)
+        private void OnPortChanged(ChangeEvent<string> evt)
         {
             if (!ushort.TryParse(evt.newValue, out ushort newPort) || !NetworkEndpoint.TryParse(m_AddressInputField.value, newPort, out NetworkEndpoint networkEndPoint))
             {
                 Debug.LogError($"Port '{evt.newValue}' is not valid. Reverting port to {k_DefaultPort}");
                 m_PortInputField.value = k_DefaultPort.ToString();
+             
                 return;
             }
 
             SetNetworkPortAndAddress(newPort, m_AddressInputField.value, k_DefaultServerListenAddress);
         }
 
-        static void SetNetworkPortAndAddress(ushort port, string address, string serverListenAddress)
+        private static void SetNetworkPortAndAddress(ushort port, string address, string serverListenAddress)
         {
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+
             if (transport == null) //happens during Play Mode Tests
             {
                 return;
@@ -139,7 +148,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             transport.SetConnectionData(address, port, serverListenAddress);
         }
 
-        void EnableAndHighlightButtons(Button buttonToHighlight, bool enable)
+        private void EnableAndHighlightButtons(Button buttonToHighlight, bool enable)
         {
             foreach (var button in m_Buttons)
             {
@@ -147,13 +156,14 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             }
         }
 
-        void SetButtonStateAndColor(Button button, bool highlight, bool enable)
+        private void SetButtonStateAndColor(Button button, bool highlight, bool enable)
         {
             button.SetEnabled(enable);
 
             if (enable)
             {
                 button.RemoveFromClassList("UseCaseButtonHighlight");
+
                 return;
             }
 

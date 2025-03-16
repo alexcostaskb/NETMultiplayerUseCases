@@ -1,7 +1,10 @@
 using Unity.Netcode;
 using UnityEngine;
+
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
+
 using UnityEngine.InputSystem;
+
 #endif
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
@@ -13,6 +16,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
     [RequireComponent(typeof(PlayerInput))]
 #endif
+
     public class ThirdPersonController : NetworkBehaviour
     {
         [Header("Player")]
@@ -78,10 +82,12 @@ namespace StarterAssets
 
         // cinemachine
         private float _cinemachineTargetYaw;
+
         private float _cinemachineTargetPitch;
 
         // player
         private float _speed;
+
         private float _animationBlend;
         private float _targetRotation = 0.0f;
         private float _rotationVelocity;
@@ -90,10 +96,12 @@ namespace StarterAssets
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
+
         private float _fallTimeoutDelta;
 
         // animation IDs
         private int _animIDSpeed;
+
         private int _animIDGrounded;
         private int _animIDJump;
         private int _animIDFreeFall;
@@ -118,11 +126,10 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
                 return _playerInput.currentControlScheme == "KeyboardMouse";
 #else
-				return false;
+                return false;
 #endif
             }
         }
-
 
         private void Awake()
         {
@@ -143,7 +150,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
             _playerInput = GetComponent<PlayerInput>();
 #else
-			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
+            Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
             AssignAnimationIDs();
@@ -265,7 +272,6 @@ namespace StarterAssets
                 // rotate to face input direction relative to camera position
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
-
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 

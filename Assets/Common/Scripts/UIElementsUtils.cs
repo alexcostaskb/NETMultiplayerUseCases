@@ -1,8 +1,12 @@
 using System;
 using System.IO;
+
 #if UNITY_EDITOR
+
 using UnityEditor;
+
 #endif
+
 using UnityEngine.UIElements;
 
 namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
@@ -13,7 +17,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
     public static class UIElementsUtils
     {
 #if UNITY_EDITOR
-        static readonly string k_UIFilesPathInTemplate = Path.Combine("Assets", Path.Combine("Editor", "UI"));
+        private static readonly string k_UIFilesPathInTemplate = Path.Combine("Assets", Path.Combine("Editor", "UI"));
 
         /// <summary>
         /// Loads an UXML file from an editor folder
@@ -23,8 +27,10 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
         public static VisualTreeAsset LoadUXML(string fileName)
         {
             string path = $"{Path.Combine(k_UIFilesPathInTemplate, fileName)}.uxml";
+
             return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
         }
+
 #endif
 
         /// <summary>
@@ -71,6 +77,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             uxmlField.Init(defaultValue);
             uxmlField.value = defaultValue;
             uxmlField.RegisterCallback(onValueChanged);
+
             return uxmlField;
         }
 
@@ -92,6 +99,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             uxmlField.value = defaultValue;
             uxmlField.SetEnabled(true);
             uxmlField.RegisterCallback(onValueChanged);
+
             return uxmlField;
         }
 
@@ -109,6 +117,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             uxmlField.value = value;
             uxmlField.SetEnabled(true);
             uxmlField.RegisterCallback(onValueChanged);
+
             return uxmlField;
         }
 
@@ -128,6 +137,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Common
             uxmlField.value = value;
             uxmlField.SetEnabled(true);
             uxmlField.RegisterCallback(onValueChanged);
+
             return uxmlField;
         }
 

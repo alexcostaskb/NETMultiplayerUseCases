@@ -9,17 +9,23 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
     public class ProximityChecker : MonoBehaviour
     {
         [SerializeField, Tooltip("At which distance will the player be considered 'close'?")]
-        float m_ActivationRadius = 1;
+        private float m_ActivationRadius = 0.1f;
 
         [SerializeField, Tooltip("A visual representation of the radius?")]
-        Transform m_RadiusRepresentation;
-        Transform m_Transform;
+        private Transform m_RadiusRepresentation;
 
-        event Action<bool> OnLocalPlayerProximityStatusChanged;
+        private Transform m_Transform;
+
+        private event Action<bool> OnLocalPlayerProximityStatusChanged;
+
         internal bool LocalPlayerIsClose { get; private set; }
-        void Awake()
+
+        private void Awake()
         {
+            // cache the transform for performance
             m_Transform = transform;
+
+            // set the radius representation to the correct position
             if (m_RadiusRepresentation)
             {
                 const float k_OffsetFromGround = 0.01f;
@@ -37,21 +43,31 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
             OnLocalPlayerProximityStatusChanged -= callback;
         }
 
-        void Update()
+        private void Update()
         {
+            // update the radius representation
             if (m_RadiusRepresentation)
             {
                 m_RadiusRepresentation.localScale = new Vector3(m_ActivationRadius * 2, m_RadiusRepresentation.localScale.y, m_ActivationRadius * 2);
             }
+
+            // check if the local player is close enough
             bool oldValue = LocalPlayerIsClose;
             LocalPlayerIsClose = LocalPlayerIsCloseEnough(m_Transform.position, m_ActivationRadius);
+
             if (oldValue != LocalPlayerIsClose)
             {
                 OnLocalPlayerProximityStatusChanged?.Invoke(LocalPlayerIsClose);
             }
         }
 
-        bool LocalPlayerIsCloseEnough(Vector3 point, float range)
+        /// <summary>
+        /// returns true if the local player is close enough to the point
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        private bool LocalPlayerIsCloseEnough(Vector3 point, float range)
         {
             //Note: This example shows how to use NetworkManager.Singleton.LocalClient.PlayerObject instead of a custom static flag to detect the local player
             if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient == null)
@@ -60,10 +76,13 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
             }
 
             NetworkObject localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
+
             if (!localPlayer)
             {
                 return false;
             }
+
+            // the player is close enough if the distance between the point and the player is less than the range
             return Vector3.Distance(point, localPlayer.transform.position) < range;
         }
     }

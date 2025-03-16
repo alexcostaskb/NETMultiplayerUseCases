@@ -1,18 +1,16 @@
-using UnityEngine;
-using UnityEditor;
 using Unity.Tutorials.Core.Editor;
-using Unity.Netcode;
+using UnityEditor;
+using UnityEngine;
 
 namespace Unity.Netcode.Samples.MultiplayerUseCases
 {
-
     /// <summary>
     /// Implement your Tutorial callbacks here.
     /// </summary>
     [CreateAssetMenu(fileName = DefaultFileName, menuName = "Tutorials/" + DefaultFileName + " Instance")]
     public class TutorialCallbacks : ScriptableObject
     {
-        [SerializeField] SceneAsset m_UseCaseSelectionScene;
+        [SerializeField] private SceneAsset m_UseCaseSelectionScene;
 
         /// <summary>
         /// The default file name used to create asset of this class type.

@@ -9,29 +9,34 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetVarVsRpc
     public class ProximityTrigger : MonoBehaviour
     {
         [SerializeField]
-        GameObject objectToToggle;
+        private GameObject objectToToggle;
 
         [SerializeField, Tooltip("At which distance will the trigger be triggered?")]
-        float m_ActivationRadius = 1;
+        private float m_ActivationRadius = 0.5f;
 
-        Transform m_Transform;
+        private Transform m_Transform;
 
-        void Awake()
+        private void Awake()
         {
+            // cache the transform for performance
             m_Transform = transform;
         }
 
-        void Update()
+        private void Update()
         {
+            // toggle the object based on the proximity of the local player
             objectToToggle.SetActive(LocalPlayerIsCloseEnough(m_Transform.position, m_ActivationRadius));
         }
 
         internal static bool LocalPlayerIsCloseEnough(Vector3 point, float range)
         {
+            // if there is no local player, it can't be close enough
             if (!PlayerManager.s_LocalPlayer)
             {
                 return false;
             }
+
+            // the local player is close enough if the distance between the point and the local player is less than the range
             return Vector3.Distance(point, PlayerManager.s_LocalPlayer.transform.position) < range;
         }
     }

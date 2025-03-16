@@ -9,25 +9,27 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
     /// </summary>
     public class ColorManager : NetworkBehaviour
     {
-        NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
-        Material m_Material;
-        ProximityChecker m_ProximityChecker;
-        InputAction interactAction;
+        private NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
+        private Material m_Material;
+        private ProximityChecker m_ProximityChecker;
+        private InputAction interactAction;
 
-        void Awake()
+        private void Awake()
         {
             m_Material = GetComponent<Renderer>().material;
             m_ProximityChecker = GetComponent<ProximityChecker>();
         }
 
-        void Start()
+        private void Start()
         {
+            // find the interact action
             interactAction = InputSystem.actions.FindAction("Interact");
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
             if (IsClient)
             {
                 /* in this case, you need to manually load the initial Color to catch up with the state of the network variable.
@@ -41,6 +43,8 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
+
+            // remove the listeners
             if (IsClient)
             {
                 m_NetworkedColor.OnValueChanged -= OnClientColorChanged;
@@ -48,7 +52,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!IsClient || !m_ProximityChecker.LocalPlayerIsClose)
             {
@@ -64,23 +68,25 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.Proximity
             }
         }
 
-        void OnClientRequestColorChange()
+        private void OnClientRequestColorChange()
         {
             ServerChangeColorRpc();
         }
 
         [Rpc(SendTo.Server)]
-        void ServerChangeColorRpc()
+        private void ServerChangeColorRpc()
         {
+            // change the color on the server
             m_NetworkedColor.Value = MultiplayerUseCasesUtilities.GetRandomColor();
         }
 
-        void OnClientColorChanged(Color32 previousColor, Color32 newColor)
+        private void OnClientColorChanged(Color32 previousColor, Color32 newColor)
         {
+            // change the color on the client
             m_Material.color = newColor;
         }
 
-        void OnClientLocalPlayerProximityStatusChanged(bool isClose)
+        private void OnClientLocalPlayerProximityStatusChanged(bool isClose)
         {
             Debug.Log($"Local player is now {(isClose ? "close" : "far")}");
         }

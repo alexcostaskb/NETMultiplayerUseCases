@@ -10,27 +10,32 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetVarVsRpc
     public class ColorManager : NetworkBehaviour
     {
         [SerializeField]
-        bool m_UseNetworkVariableForColor;
+        private bool m_UseNetworkVariableForColor; // if true, the color will be synchronized using a NetworkVariable
 
-        NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
-        Material m_Material;
-        InputAction interactAction;
+        private NetworkVariable<Color32> m_NetworkedColor = new NetworkVariable<Color32>();
+        private Material m_Material;
+        private InputAction interactAction;
 
-        void Awake()
+        private void Awake()
         {
+            // cache the material for performance
             m_Material = GetComponent<Renderer>().material;
         }
 
-        void Start()
+        private void Start()
         {
+            // find the interact action
             interactAction = InputSystem.actions.FindAction("Interact");
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            // if we are on the client, we need to catch up with the current state of the network variable
             if (IsClient)
             {
+                // if we are using a NetworkVariable, we need to catch up with the current state
                 if (m_UseNetworkVariableForColor)
                 {
                     /* in this case, you need to manually load the initial Color to catch up with the state of the network variable.
@@ -54,7 +59,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetVarVsRpc
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!IsClient)
             {
@@ -70,31 +75,39 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetVarVsRpc
             }
         }
 
-        void OnClientRequestColorChange()
+        private void OnClientRequestColorChange()
         {
             ServerChangeColorRpc();
         }
 
         [Rpc(SendTo.Server)]
-        void ServerChangeColorRpc()
+        private void ServerChangeColorRpc()
         {
+            // generate a new random color
             Color32 newColor = MultiplayerUseCasesUtilities.GetRandomColor();
+
+            // change the color on the server
             if (m_UseNetworkVariableForColor)
             {
                 m_NetworkedColor.Value = newColor;
+
                 return;
             }
+
+            // if we are not using a NetworkVariable, we need to notify the clients directly
             ClientNotifyColorChangedRpc(newColor);
         }
 
         [Rpc(SendTo.ClientsAndHost)]
-        void ClientNotifyColorChangedRpc(Color32 newColor)
+        private void ClientNotifyColorChangedRpc(Color32 newColor)
         {
+            // update the color
             m_Material.color = newColor;
         }
 
-        void OnClientColorChanged(Color32 previousColor, Color32 newColor)
+        private void OnClientColorChanged(Color32 previousColor, Color32 newColor)
         {
+            // update the color
             m_Material.color = newColor;
         }
     }

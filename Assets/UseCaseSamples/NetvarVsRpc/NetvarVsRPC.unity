@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -692,6 +693,10 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 731168902
       objectReference: {fileID: 0}
+    - target: {fileID: 7072414127250795839, guid: bd21e0b3431ce674b8646bd84701b818, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3082084091
+      objectReference: {fileID: 0}
     - target: {fileID: 7079470771712663481, guid: bd21e0b3431ce674b8646bd84701b818, type: 3}
       propertyPath: m_Name
       value: ColoredCube
@@ -814,6 +819,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!1 &1242368263
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,6 +879,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NetworkManagerExpanded: 0
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1242368264}
@@ -892,8 +899,13 @@ MonoBehaviour:
     NetworkIdRecycleDelay: 120
     RpcHashSize: 0
     LoadSceneTimeOut: 120
-    SpawnTimeout: 1
+    SpawnTimeout: 10
     EnableNetworkLogs: 1
+    NetworkTopology: 0
+    UseCMBService: 0
+    AutoSpawnPlayerPrefabClientSide: 1
+    NetworkMessageMetrics: 1
+    NetworkProfilingMetrics: 1
     OldPrefabList:
     - Override: 0
       Prefab: {fileID: 7079470771712663481, guid: bd21e0b3431ce674b8646bd84701b818, type: 3}

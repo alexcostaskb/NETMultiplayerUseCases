@@ -7,8 +7,8 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.RPC
     /// </summary>
     public class PositionOffsetKeeper : MonoBehaviour
     {
-        Transform m_TargetToFollow;
-        Vector3 m_PositionOffsetToKeep;
+        private Transform m_TargetToFollow;
+        private Vector3 m_PositionOffsetToKeep;
 
         public void Initialize(Transform targetToFollow, Vector3 positionOffsetToKeep)
         {
@@ -16,7 +16,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.RPC
             m_PositionOffsetToKeep = positionOffsetToKeep;
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
             if (m_TargetToFollow)
             {

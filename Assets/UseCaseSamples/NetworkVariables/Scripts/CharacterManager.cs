@@ -9,7 +9,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
     /// <summary>
     /// A complex data structure. Can only contain the types listed here: https://docs-multiplayer.unity3d.com/netcode/current/basics/networkvariable/index.html#supported-types
     /// </summary>
-    struct SyncableCustomData : INetworkSerializable
+    internal struct SyncableCustomData : INetworkSerializable
     {
         public int Health;
         public FixedString128Bytes Username; //value-type version of string with fixed allocation. Strings should be avoided in general when dealing with netcode. Fixed strings are a "less bad" option.
@@ -29,24 +29,23 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
         /// <summary>
         /// The NetworkVariable holding the custom data to synchronize.
         /// </summary>
-        NetworkVariable<SyncableCustomData> m_SyncedCustomData = new NetworkVariable<SyncableCustomData>(writePerm: NetworkVariableWritePermission.Owner); //you can adjust who can write to it with parameters
+        private NetworkVariable<SyncableCustomData> m_SyncedCustomData = new NetworkVariable<SyncableCustomData>(writePerm: NetworkVariableWritePermission.Owner); //you can adjust who can write to it with parameters
 
-        [SerializeField] Image m_HealthBarImage;
-        [SerializeField] TMP_Text m_UsernameLabel;
+        [SerializeField] private Image m_HealthBarImage;
+        [SerializeField] private TMP_Text m_UsernameLabel;
 
         [SerializeField, Tooltip("The seconds that will elapse between data changes")]
-        float m_SecondsBetweenDataChanges;
-        float m_ElapsedSecondsSinceLastChange;
+        private float m_SecondsBetweenDataChanges;
+
+        private float m_ElapsedSecondsSinceLastChange;
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
             if (IsClient)
             {
-                /*
-                 * We call the color change method manually when we connect to ensure that our color is correctly initialized.
-                 * This is helpful for when a client joins mid-game and needs to catch up with the current state of the game.
-                 */
+                // We call the color change method manually when we connect to ensure that our color is correctly initialized.
+                // This is helpful for when a client joins mid-game and needs to catch up with the current state of the game.
                 OnClientCustomDataChanged(m_SyncedCustomData.Value, m_SyncedCustomData.Value);
                 m_SyncedCustomData.OnValueChanged += OnClientCustomDataChanged; //this will be called on the client whenever the value is changed by the server
             }
@@ -55,13 +54,14 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
+
             if (IsClient)
             {
                 m_SyncedCustomData.OnValueChanged -= OnClientCustomDataChanged;
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!IsSpawned)
             {
@@ -71,10 +71,8 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
 
             if (!IsServer)
             {
-                /*
-                 * By default, only the server is allowed to change the value of NetworkVariables.
-                 * This can be changed through the NetworkVariable's constructor.
-                 */
+                // By default, only the server is allowed to change the value of NetworkVariables.
+                // This can be changed through the NetworkVariable's constructor.
                 return;
             }
 
@@ -87,8 +85,7 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
             }
         }
 
-
-        void OnServerChangeData()
+        private void OnServerChangeData()
         {
             m_SyncedCustomData.Value = new SyncableCustomData
             {
@@ -97,14 +94,14 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
             };
         }
 
-        void OnClientHealthChanged(int previousHealth, int newHealth)
+        private void OnClientHealthChanged(int previousHealth, int newHealth)
         {
             m_HealthBarImage.rectTransform.localScale = new Vector3((float)newHealth / 100.0f, 1);//(float)newHealth / 100.0f;
             OnClientUpdateHealthBarColor(newHealth);
             //note: you could use the previousHealth to play a healing/damage animation
         }
 
-        void OnClientUpdateHealthBarColor(int newHealth)
+        private void OnClientUpdateHealthBarColor(int newHealth)
         {
             const int k_MaxHealth = 100;
             float healthPercent = (float)newHealth / k_MaxHealth;
@@ -112,12 +109,12 @@ namespace Unity.Netcode.Samples.MultiplayerUseCases.NetworkVariables
             m_HealthBarImage.color = healthBarColor;
         }
 
-        void OnClientUsernameChanged(string newUsername)
+        private void OnClientUsernameChanged(string newUsername)
         {
             m_UsernameLabel.text = newUsername;
         }
 
-        void OnClientCustomDataChanged(SyncableCustomData previousValue, SyncableCustomData newValue)
+        private void OnClientCustomDataChanged(SyncableCustomData previousValue, SyncableCustomData newValue)
         {
             OnClientHealthChanged(previousValue.Health, newValue.Health);
             OnClientUsernameChanged(newValue.Username.ToString());
